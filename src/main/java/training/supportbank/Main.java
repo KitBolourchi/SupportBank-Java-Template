@@ -9,27 +9,34 @@ import java.util.Scanner;
 public class Main {
     public static void main(String args[]) {
         String CSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/Transactions2014.csv";
-        ArrayList<Account> listOfAccounts = new ArrayList<>();
-
-        listOfAccounts = readCSV(CSV);
+        ArrayList<Account> listOfAccounts = readCSV(CSV);
 
         for (int i = 0; i < listOfAccounts.size(); i++) {
             System.out.println(listOfAccounts.get(i).getAccountName());
         }
     }
 
-    private static ArrayList<Account> readCSV(String path) {
+    // Function which reads the CSV file and returns an ArrayList of Account type Objects containing the names
+    public static ArrayList<Account> readCSV(String path) {
         String line = "";
         String splitBy = ",";
 
         ArrayList<Account> myAccounts = new ArrayList<>();
+        ArrayList<String> listOfNames = new ArrayList<>();
+
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
 
             while ((line = reader.readLine()) != null) {
                 String[] transactions = line.split(splitBy);
-                if (!myAccounts.contains(transactions[1])) {
+                if (!listOfNames.contains(transactions[1])) {
                     myAccounts.add(new Account(transactions[1]));
+                    listOfNames.add(transactions[1]);
+                }
+
+                if (!listOfNames.contains(transactions[2])) {
+                    myAccounts.add(new Account(transactions[2]));
+                    listOfNames.add(transactions[2]);
                 }
             }
         } catch (IOException e) {
