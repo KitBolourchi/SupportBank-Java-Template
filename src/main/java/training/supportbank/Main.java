@@ -15,7 +15,7 @@ public class Main {
         String input;
 
         do {
-            System.out.println("Choose between listing all or specific account: all | account");
+            System.out.println("Choose between listing all or specific account: 'all' || 'Account name'");
             input =  scanner.nextLine();
         } while (!searchListOfNames(listOfAccounts, input));
 
@@ -41,7 +41,6 @@ public class Main {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
 
-            int count = 0;
             while ((line = reader.readLine()) != null) {
                 String[] transactions = line.split(splitBy);
 
@@ -79,6 +78,7 @@ public class Main {
 
     }
 
+    //Function which searches the list of names to use in the Do While loop
     public static boolean searchListOfNames(ArrayList<Account> list, String input) {
 
         if(input.equals("all")) {
@@ -93,6 +93,7 @@ public class Main {
         return false;
     }
 
+    //Function which reads all the transactions for the specific account specified by the name
     public static void readTransactions(String name, String CSVpath)  {
         String line = "";
         String splitBy = ",";
@@ -100,7 +101,6 @@ public class Main {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(CSVpath));
 
-            int count = 0;
             while ((line = reader.readLine()) != null) {
                 String[] transactions = line.split(splitBy);
 
@@ -110,10 +110,10 @@ public class Main {
 
                 if(transactions[1].equals(name) || transactions[2].equals(name)) {
                     System.out.println("Date: " + transactions[0]
-                            + "   |       From: " + transactions[1]
-                            + "   |       To: " + transactions[2]
-                            + "   |       Narrative: " + transactions[3]
-                            + "   |       Amount: " + transactions[4]);
+                            + "    |     Amount: " + transactions[4]
+                            + "    |     From: " + transactions[1]
+                            + "    |     To: " + transactions[2]
+                            + "    |     Narrative: " + transactions[3]);
                 }
             }
         }
