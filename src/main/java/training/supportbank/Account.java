@@ -17,11 +17,11 @@ public class Account {
         return accountHolder;
     }
 
-    public void addToBalance(int amount) {
+    public void addToBalance(float amount) {
         this.balance += amount;
     }
 
-    public void subtractFromBalance(int amount) {
+    public void subtractFromBalance(float amount) {
         this.balance -= amount;
     }
 }

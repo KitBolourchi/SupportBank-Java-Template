@@ -14,6 +14,8 @@ public class Main {
         for (int i = 0; i < listOfAccounts.size(); i++) {
             System.out.println(listOfAccounts.get(i).getAccountName());
         }
+
+        System.out.println("Test");
     }
 
     // Function which reads the CSV file and returns an ArrayList of Account type Objects containing the names
@@ -27,6 +29,7 @@ public class Main {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
 
+            int count = 0;
             while ((line = reader.readLine()) != null) {
                 String[] transactions = line.split(splitBy);
 
@@ -55,5 +58,6 @@ public class Main {
         }
 
         return myAccounts;
+
     }
 }
