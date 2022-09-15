@@ -33,9 +33,9 @@ public class Main {
                 BigDecimal cash = listOfAccounts.get(i).getBalance();
                 System.out.println(name + " £" + cash);
             }
+        } else {
+            readTransactions(input, badDataCSV);
         }
-
-        readTransactions(input, CSV);
     }
 
     // Function which reads the CSV file and returns an ArrayList of Account type Objects containing the names
@@ -78,8 +78,6 @@ public class Main {
                     continue;
                 }
 
-                isValidDate(transactions[0], count);
-
                 myAccounts.stream()
                         .filter(x -> x.getAccountName().equals(transactions[1]))
                         .forEach(x -> x.addToBalance(cash));
@@ -117,11 +115,13 @@ public class Main {
     public static void readTransactions(String name, String CSVpath)  {
         String line = "";
         String splitBy = ",";
+        int count = 0;
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(CSVpath));
 
             while ((line = reader.readLine()) != null) {
+                count++;
                 String[] transactions = line.split(splitBy);
 
                 if (transactions[1].equals("From")) {
@@ -134,6 +134,10 @@ public class Main {
                             + "    |     From: " + transactions[1]
                             + "    |     To: " + transactions[2]
                             + "    |     Narrative: " + transactions[3]);
+                }
+
+                if(transactions[1].equals(name) || transactions[2].equals(name)) {
+                    isValidDate(transactions[0], count);
                 }
             }
         }
