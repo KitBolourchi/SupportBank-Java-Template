@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class Account {
 
     private String accountHolder;
-    private BigDecimal balance = BigDecimal.valueOf(0);
+    private BigDecimal balance = BigDecimal.valueOf(0).setScale(2);
 
     public Account(String name) {
         this.accountHolder = name;

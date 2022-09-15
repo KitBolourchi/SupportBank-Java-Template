@@ -1,7 +1,6 @@
 package training.supportbank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,9 +15,19 @@ import java.util.Scanner;
 public class Main {
     private static final Logger LOGGER = LogManager.getLogger();
     public static void main(String args[]) {
-        String CSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/Transactions2014.csv";
-        String badDataCSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/DodgeyTransaction.csv";
-        ArrayList<Account> listOfAccounts = readCSV(badDataCSV);
+        String path = args[0];
+        ArrayList<Account> listOfAccounts;
+
+        switch (path.split("\\.")[1]) {
+            case "csv":
+                listOfAccounts = readCSV(path);
+                break;
+            default:
+                LOGGER.fatal("Incorrect filetype");
+                return;
+        }
+
+
         Scanner scanner = new Scanner(System.in);
         String input;
 
@@ -34,7 +43,7 @@ public class Main {
                 System.out.println(name + " £" + cash);
             }
         } else {
-            readTransactions(input, badDataCSV);
+            readTransactions(input, path);
         }
     }
 
