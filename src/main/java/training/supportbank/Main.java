@@ -1,16 +1,24 @@
 package training.supportbank;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 
 public class Main {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static void main(String args[]) {
         String CSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/Transactions2014.csv";
-        ArrayList<Account> listOfAccounts = readCSV(CSV);
+        String badDataCSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/DodgeyTransaction.csv";
+        ArrayList<Account> listOfAccounts = readCSV(badDataCSV);
         Scanner scanner = new Scanner(System.in);
         String input;
 
@@ -34,6 +42,7 @@ public class Main {
     public static ArrayList<Account> readCSV(String path) {
         String line = "";
         String splitBy = ",";
+        int count = 0;
 
         ArrayList<Account> myAccounts = new ArrayList<>();
         ArrayList<String> listOfNames = new ArrayList<>();
@@ -42,6 +51,7 @@ public class Main {
             BufferedReader reader = new BufferedReader(new FileReader(path));
 
             while ((line = reader.readLine()) != null) {
+                count ++;
                 String[] transactions = line.split(splitBy);
 
                 if (transactions[1].equals("From")) {
@@ -60,7 +70,15 @@ public class Main {
                     listOfNames.add(transactions[2]);
                 }
 
-                BigDecimal cash = new BigDecimal(transactions[4]);
+                BigDecimal cash;
+                try {
+                    cash = new BigDecimal(transactions[4]);
+                } catch (NumberFormatException nfe) {
+                    LOGGER.error("AMOUNT ERROR: Not a valid type for 'Amount': ERROR on line " + count + " of CSV file");
+                    continue;
+                }
+
+                isValidDate(transactions[0], count);
 
                 myAccounts.stream()
                         .filter(x -> x.getAccountName().equals(transactions[1]))
@@ -90,6 +108,8 @@ public class Main {
                 return true;
             }
         }
+
+        LOGGER.error("Wrong input, please either type 'all' for all accounts or the name of the account!");
         return false;
     }
 
@@ -119,6 +139,16 @@ public class Main {
         }
         catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    public static void isValidDate(String currDate, int count) {
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        try {
+            LocalDate.parse(currDate, dateFormat);
+        } catch (DateTimeParseException e) {
+            String errorMessage = "DATE ERROR: not a valid type for 'Date': ERROR on line " + count + " of CSV file";
+            LOGGER.error(errorMessage);
         }
     }
 }
