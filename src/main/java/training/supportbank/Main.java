@@ -2,6 +2,7 @@ package training.supportbank;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,12 +11,23 @@ public class Main {
     public static void main(String args[]) {
         String CSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/Transactions2014.csv";
         ArrayList<Account> listOfAccounts = readCSV(CSV);
+        Scanner scanner = new Scanner(System.in);
+        String input;
 
-        for (int i = 0; i < listOfAccounts.size(); i++) {
-            System.out.println(listOfAccounts.get(i).getAccountName());
+        do {
+            System.out.println("Choose between listing all or specific account: all | account");
+            input =  scanner.nextLine();
+        } while (!searchListOfNames(listOfAccounts, input));
+
+        if (input.equals("all")) {
+            for (int i = 0; i < listOfAccounts.size(); i++) {
+                String name = listOfAccounts.get(i).getAccountName();
+                BigDecimal cash = listOfAccounts.get(i).getBalance();
+                System.out.println(name + " £" + cash);
+            }
         }
 
-        System.out.println("Test");
+        readTransactions(input, CSV);
     }
 
     // Function which reads the CSV file and returns an ArrayList of Account type Objects containing the names
@@ -49,9 +61,15 @@ public class Main {
                     listOfNames.add(transactions[2]);
                 }
 
-                Float cash = Float.parseFloat(transactions[4]);
+                BigDecimal cash = new BigDecimal(transactions[4]);
 
-                System.out.println(cash);
+                myAccounts.stream()
+                        .filter(x -> x.getAccountName().equals(transactions[1]))
+                        .forEach(x -> x.addToBalance(cash));
+
+                myAccounts.stream()
+                        .filter(x -> x.getAccountName().equals(transactions[2]))
+                        .forEach(x -> x.subtractFromBalance(cash));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,5 +77,48 @@ public class Main {
 
         return myAccounts;
 
+    }
+
+    public static boolean searchListOfNames(ArrayList<Account> list, String input) {
+
+        if(input.equals("all")) {
+            return true;
+        }
+
+        for(Account account : list) {
+            if (account.getAccountName().equals(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void readTransactions(String name, String CSVpath)  {
+        String line = "";
+        String splitBy = ",";
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(CSVpath));
+
+            int count = 0;
+            while ((line = reader.readLine()) != null) {
+                String[] transactions = line.split(splitBy);
+
+                if (transactions[1].equals("From")) {
+                    continue;
+                }
+
+                if(transactions[1].equals(name) || transactions[2].equals(name)) {
+                    System.out.println("Date: " + transactions[0]
+                            + "   |       From: " + transactions[1]
+                            + "   |       To: " + transactions[2]
+                            + "   |       Narrative: " + transactions[3]
+                            + "   |       Amount: " + transactions[4]);
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
