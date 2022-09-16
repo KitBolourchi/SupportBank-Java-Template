@@ -1,15 +1,16 @@
 package training.supportbank;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.math.BigDecimal;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -87,6 +88,43 @@ public class Transactions {
         }
         catch (FileNotFoundException e) {
             LOGGER.error("File not found");
+        }
+    }
+
+    public static void transactionsXML(String name, String XMLpath) {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(new File(XMLpath));
+
+            NodeList list = doc.getElementsByTagName("SupportTransaction");
+
+            for (int i = 0; i < list.getLength(); i++){
+
+                Node node = list.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+
+                    String from = element.getElementsByTagName("From").item(0).getTextContent();
+                    String to = element.getElementsByTagName("To").item(0).getTextContent();
+                    String narrative = element.getElementsByTagName("Description").item(0).getTextContent();
+                    Long dateLong = Long.parseLong(element.getAttribute("Date")) - (365 * 70) - Math.floorDiv(70, 4);
+                    LocalDate date = LocalDate.ofEpochDay(dateLong);
+                    String amount = element.getElementsByTagName("Value").item(0).getTextContent();
+
+                    if (from.equals(name) || to.equals(name)) {
+                        System.out.println("Date: " + date
+                                + "    |     Amount: " + amount
+                                + "    |     From: " + from
+                                + "    |     To: " + to
+                                + "    |     Narrative: " + narrative);
+                    }
+                }
+            }
+
+        }  catch (ParserConfigurationException | IOException | org.xml.sax.SAXException e) {
+            e.printStackTrace();
         }
     }
 }
