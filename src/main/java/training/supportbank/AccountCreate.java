@@ -1,11 +1,11 @@
 package training.supportbank;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -69,6 +69,59 @@ public class AccountCreate {
 
         return myAccounts;
 
+    }
+
+    public static ArrayList<Account> readJSON(String path) {
+
+        ArrayList<Account> myAccounts = new ArrayList<>();
+        ArrayList<String> listOfNames = new ArrayList<>();
+
+        Gson gson = new Gson();
+
+        JsonObject[] array;
+
+        try  {
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+
+            array = gson.fromJson(reader, JsonObject[].class);
+
+            for(JsonObject object: array) {
+
+                String from = object.get("fromAccount").toString().replace("\"", "");
+                String to = object.get("toAccount").toString().replace("\"", "");
+
+                if (!listOfNames.contains(from)) {
+                    myAccounts.add(new Account(from));
+                    listOfNames.add(from);
+                }
+
+                if (!listOfNames.contains(to)) {
+                    myAccounts.add(new Account(to));
+                    listOfNames.add(to);
+                }
+
+                BigDecimal cash;
+                try {
+                    cash = new BigDecimal(object.get("amount").toString());
+                } catch (NumberFormatException nfe) {
+                    //LOGGER.error("AMOUNT ERROR: Not a valid type for 'Amount': ERROR on line " + count + " of CSV file");
+                    continue;
+                }
+
+                myAccounts.stream()
+                        .filter(x -> x.getAccountName().equals(from))
+                        .forEach(x -> x.addToBalance(cash));
+
+                myAccounts.stream()
+                        .filter(x -> x.getAccountName().equals(to))
+                        .forEach(x -> x.subtractFromBalance(cash));
+            }
+        }
+        catch (FileNotFoundException e) {
+            LOGGER.error("File not found");
+        }
+
+        return myAccounts;
     }
 
     public static boolean searchListOfNames(ArrayList<Account> list, String input) {

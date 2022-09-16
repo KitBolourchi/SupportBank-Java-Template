@@ -1,11 +1,15 @@
 package training.supportbank;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -51,6 +55,38 @@ public class Transactions {
         }
         catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void transactionsJSON(String name, String JSONpath) {
+        Gson gson = new Gson();
+
+        JsonObject[] array;
+
+        try  {
+            BufferedReader reader = new BufferedReader(new FileReader(JSONpath));
+
+            array = gson.fromJson(reader, JsonObject[].class);
+
+            for(JsonObject object: array) {
+
+                String from = object.get("fromAccount").toString().replace("\"", "");
+                String to = object.get("toAccount").toString().replace("\"", "");
+                String narrative = object.get("narrative").toString().replace("\"", "");
+                String date = object.get("date").toString().replace("\"", "");
+                String amount = object.get("amount").toString();
+
+                if(from.equals(name) || to.equals(name)) {
+                    System.out.println("Date: " + date
+                            + "    |     Amount: " + amount
+                            + "    |     From: " +  from
+                            + "    |     To: " + to
+                            + "    |     Narrative: " + narrative);
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            LOGGER.error("File not found");
         }
     }
 }

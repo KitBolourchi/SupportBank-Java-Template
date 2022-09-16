@@ -1,13 +1,7 @@
 package training.supportbank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -22,8 +16,9 @@ public class Main {
             case "csv":
                 listOfAccounts = AccountCreate.readCSV(path);
                 break;
-//            case "json":
-//                break;
+            case "json":
+                listOfAccounts = AccountCreate.readJSON(path);
+                break;
 //            case "xml":
 //                break;
             default:
@@ -45,8 +40,18 @@ public class Main {
                 BigDecimal cash = listOfAccounts.get(i).getBalance();
                 System.out.println(name + " £" + cash);
             }
-        } else {
-            Transactions.readTransactions(input, path);
+        }
+        switch (path.split("\\.")[1]) {
+            case "csv":
+                Transactions.readTransactions(input, path);
+                break;
+            case "json":
+                Transactions.transactionsJSON(input, path);
+                break;
+//            case "xml":
+//                break;
+            default:
+                LOGGER.fatal("Incorrect filetype");
         }
     }
 }
