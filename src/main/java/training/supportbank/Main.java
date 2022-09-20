@@ -1,59 +1,59 @@
 package training.supportbank;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 
 public class Main {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static void main(String args[]) {
-        String CSV = "/Users/kbolourc/Training/bootcampPersonalGitHub/Week1/SupportBank-Java-Template/Transactions2014.csv";
-        ArrayList<Account> listOfAccounts = readCSV(CSV);
+        String path = args[0];
+        ArrayList<Account> listOfAccounts;
 
-        for (int i = 0; i < listOfAccounts.size(); i++) {
-            System.out.println(listOfAccounts.get(i).getAccountName());
+        switch (path.split("\\.")[1]) {
+            case "csv":
+                listOfAccounts = AccountCreate.readCSV(path);
+                break;
+            case "json":
+                listOfAccounts = AccountCreate.readJSON(path);
+                break;
+            case "xml":
+                listOfAccounts = AccountCreate.readXML(path);
+                break;
+            default:
+                LOGGER.fatal("Incorrect filetype");
+                return;
         }
-    }
 
-    // Function which reads the CSV file and returns an ArrayList of Account type Objects containing the names
-    public static ArrayList<Account> readCSV(String path) {
-        String line = "";
-        String splitBy = ",";
+        Scanner scanner = new Scanner(System.in);
+        String input;
 
-        ArrayList<Account> myAccounts = new ArrayList<>();
-        ArrayList<String> listOfNames = new ArrayList<>();
+        do {
+            System.out.println("Choose between listing all or specific account: 'all' || 'Account name'");
+            input =  scanner.nextLine();
+        } while (!AccountCreate.searchListOfNames(listOfAccounts, input));
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-
-            while ((line = reader.readLine()) != null) {
-                String[] transactions = line.split(splitBy);
-
-                if (transactions[1].equals("From")) {
-                    continue;
-                }
-
-                // Check if the 'From' names already exists in listOfNames, if not add to list of myAccounts & listOfNames
-                if (!listOfNames.contains(transactions[1])) {
-                    myAccounts.add(new Account(transactions[1]));
-                    listOfNames.add(transactions[1]);
-                }
-
-                // Check if the 'To' names already exists in listOfNames, if not add to list of myAccounts & listOfNames
-                if (!listOfNames.contains(transactions[2])) {
-                    myAccounts.add(new Account(transactions[2]));
-                    listOfNames.add(transactions[2]);
-                }
-
-                Float cash = Float.parseFloat(transactions[4]);
-
-                System.out.println(cash);
+        if (input.equals("all")) {
+            for (int i = 0; i < listOfAccounts.size(); i++) {
+                String name = listOfAccounts.get(i).getAccountName();
+                BigDecimal cash = listOfAccounts.get(i).getBalance();
+                System.out.println(name + " £" + cash);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-        return myAccounts;
+        switch (path.split("\\.")[1]) {
+            case "csv":
+                Transactions.readTransactions(input, path);
+                break;
+            case "json":
+                Transactions.transactionsJSON(input, path);
+                break;
+            case "xml":
+                Transactions.transactionsXML(input, path);
+                break;
+            default:
+                LOGGER.fatal("Incorrect filetype");
+        }
     }
 }

@@ -1,15 +1,17 @@
 package training.supportbank;
 
+import java.math.BigDecimal;
+
 public class Account {
 
     private String accountHolder;
-    private int balance = 0;
+    private BigDecimal balance = BigDecimal.valueOf(0).setScale(2);
 
     public Account(String name) {
         this.accountHolder = name;
     }
 
-    public int getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
@@ -17,11 +19,11 @@ public class Account {
         return accountHolder;
     }
 
-    public void addToBalance(int amount) {
-        this.balance += amount;
+    public void addToBalance(BigDecimal amount) {
+        this.balance = balance.add(amount);
     }
 
-    public void subtractFromBalance(int amount) {
-        this.balance -= amount;
+    public void subtractFromBalance(BigDecimal amount) {
+        this.balance = balance.subtract(amount);
     }
 }
